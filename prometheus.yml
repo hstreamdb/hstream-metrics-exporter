@@ -1,0 +1,6 @@
+global:
+scrape_configs:
+  - job_name: "hstream"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["localhost:9270"]

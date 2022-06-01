@@ -64,12 +64,14 @@ go build && ./hstream-metrics-exporter &
 
 docker run -td --network host                               \
   --rm                                                      \
+  --name hs-test-prometheus                                 \
   -v "$(pwd)"/prometheus.yml:/etc/prometheus/prometheus.yml \
     prom/prometheus
 
 
 docker run -td --network host         \
   --rm                                \
+  --name hs-test-grafana              \
   -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin \
   -e GF_AUTH_ANONYMOUS_ENABLED=true   \
   -e GF_AUTH_DISABLE_LOGIN_FORM=true  \

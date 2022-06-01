@@ -7,6 +7,9 @@ ps -ef | $GREP hstream-metrics-exporter | $GREP -v grep | awk '{print $2}' | xar
 ps -ef | $GREP http-server              | $GREP -v grep | awk '{print $2}' | xargs kill || echo "http-server not running"
 
 
+docker stop hs-test-grafana    || echo "hs-test-grafana not running"
+docker stop hs-test-prometheus || echo "hs-test-prometheus not running"
+
 docker stop hs-test-hserver || echo "hs-test-hserver not running"
 docker stop hs-test-hstore  || echo "hs-test-hstore not running"
 docker stop hs-test-zk      || echo "hs-test-zk not running"

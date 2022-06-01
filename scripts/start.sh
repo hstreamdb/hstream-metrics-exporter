@@ -50,16 +50,17 @@ sleep 5
 docker ps
 
 
+DEV_DIST="./_dev_dist"
+
 if [ -z "$HTTP_SERVER" ];
 then
-  DEV_DIST="./_dev_dist"
   mkdir -p $DEV_DIST
   HTTP_SERVER="$DEV_DIST/http-services/bin/http-server"
 fi
 
-$HTTP_SERVER -services-url "localhost:6570" -address "localhost:9290" &
+nohup $HTTP_SERVER -services-url "localhost:6570" -address "localhost:9290" &
 
-go build && ./hstream-metrics-exporter
+go build && ./hstream-metrics-exporter &
 
 docker run -td --network host                               \
   --rm                                                      \

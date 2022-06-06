@@ -45,7 +45,7 @@ docker run -td --network host                                       \
         --store-config /data/store/logdevice.conf --log-level debug \
         --port 6570 --server-id 0
 
-sleep 5
+sleep 10
 
 docker ps
 
@@ -62,19 +62,30 @@ nohup $HTTP_SERVER -services-url "localhost:6570" -address "localhost:9290" &
 
 go build && ./hstream-metrics-exporter &
 
-docker run -td --network host                               \
-  --rm                                                      \
-  --name hs-test-prometheus                                 \
-  -v "$(pwd)"/prometheus.yml:/etc/prometheus/prometheus.yml \
+docker run -td --network host                                       \
+  --rm                                                              \
+  --name hs-test-prometheus                                         \
+  -v "$(pwd)"/configs/prometheus.yml:/etc/prometheus/prometheus.yml \
     prom/prometheus
 
 
-docker run -td --network host         \
-  --rm                                \
-  --name hs-test-grafana              \
-  -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin \
-  -e GF_AUTH_ANONYMOUS_ENABLED=true   \
-  -e GF_AUTH_DISABLE_LOGIN_FORM=true  \
+docker run -td --network host                                \
+  --rm                                                       \
+  --name hs-test-grafana                                     \
+  -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin                        \
+  -e GF_AUTH_ANONYMOUS_ENABLED=true                          \
+  -e GF_AUTH_DISABLE_LOGIN_FORM=true                         \
+  -v "$(pwd)"/configs/provisioning:/etc/grafana/provisioning \
     grafana/grafana-oss:main
 
+sleep 10
+
 docker ps
+
+# for i in ./configs/data_sources/*; do
+# 	curl                                                \
+#     -X "POST" "http://localhost:3000/api/datasources" \
+#     -H "Content-Type: application/json"               \
+#       --user admin:admin                              \
+#       --data-binary @"$i"
+# done

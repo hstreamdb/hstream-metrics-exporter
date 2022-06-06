@@ -69,6 +69,9 @@ docker run -td --network host                                       \
     prom/prometheus
 
 
+node-exporter &
+
+
 docker run -td --network host                                \
   --rm                                                       \
   --name hs-test-grafana                                     \

@@ -3,6 +3,7 @@ set -e
 
 GREP="/usr/bin/grep"
 
+ps -ef | $GREP node-exporter            | $GREP -v grep | awk '{print $2}' | xargs kill || echo "node-exporter not running"
 ps -ef | $GREP hstream-metrics-exporter | $GREP -v grep | awk '{print $2}' | xargs kill || echo "hstream-metrics-exporter not running"
 ps -ef | $GREP http-server              | $GREP -v grep | awk '{print $2}' | xargs kill || echo "http-server not running"
 

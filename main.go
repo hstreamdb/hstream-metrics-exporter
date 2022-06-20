@@ -13,8 +13,6 @@ import (
 
 const resourceSuffix = "/v1/cluster"
 
-var requestBuilder RequestBuilder
-
 func main() {
 	const LOCALHOST = "localhost"
 	const HttpPrefix = "http://"
@@ -36,10 +34,12 @@ func main() {
 	serverHostPort := *serverHost + ":" + *serverPort
 	httpServerHostPort := *httpServerHost + ":" + *httpServerPort
 	resourceUrl := httpServerHostPort + resourceSuffix
-	requestBuilder = NewRequestBuilder(resourceUrl)
+	requestBuilder := NewRequestBuilder(resourceUrl)
+	requestBuilderWithoutInterval := NewRequestBuilderWithoutInterval(resourceUrl)
 
-	doCollectForCategory(Stream, GetStreamStats(), StreamName, *scrapeInterval)
-	doCollectForCategory(Subscription, GetSubscriptionStats(), SubscriptionId, *scrapeInterval)
+	doCollectForCategory(requestBuilder, Stream, GetStreamStats(), StreamName, *scrapeInterval)
+	doCollectForCategory(requestBuilder, Subscription, GetSubscriptionStats(), SubscriptionId, *scrapeInterval)
+	doCollectForCategory(requestBuilderWithoutInterval, "server_histogram", GetServerHistogramStats(), "server_histogram", *scrapeInterval)
 
 	http.Handle("/metrics", promhttp.HandlerFor(
 		prometheus.DefaultGatherer,
@@ -53,12 +53,12 @@ func main() {
 	)
 }
 
-func doCollectForCategory(category string, categoryStats []Stats, mainKey string, scrapeInterval int) {
+func doCollectForCategory(rb RequestBuilder, category string, categoryStats []Stats, mainKey string, scrapeInterval int) {
 	for _, stats := range categoryStats {
 		vecRef := newGaugeVec(category, stats, mainKey)
 		stats := stats
 		go func() {
-			doCollectFor(vecRef, category, stats, scrapeInterval)
+			doCollectFor(rb, vecRef, category, stats, scrapeInterval)
 		}()
 	}
 }
@@ -88,7 +88,7 @@ func checkZeroIntervalStats(stats Stats) bool {
 	return false
 }
 
-func doCollectFor(vec *prometheus.GaugeVec, category string, stats Stats, scrapeInterval int) {
+func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, category string, stats Stats, scrapeInterval int) {
 	ticker := NewTickerSec(scrapeInterval)
 	method := stats.methods[0]
 	defer ticker.Stop()
@@ -102,7 +102,7 @@ func doCollectFor(vec *prometheus.GaugeVec, category string, stats Stats, scrape
 			}
 
 			for _, interval := range intervals {
-				err := doGetSet(category, interval, method, vec)
+				err := doGetSet(requestBuilder, category, interval, method, vec)
 				if err != nil {
 					log.Printf("error: %v\n", err)
 					log.Println(category, interval, method)
@@ -113,7 +113,7 @@ func doCollectFor(vec *prometheus.GaugeVec, category string, stats Stats, scrape
 	}
 }
 
-func doGetSet(category, interval, metrics string, vec *prometheus.GaugeVec) error {
+func doGetSet(requestBuilder RequestBuilder, category, interval, metrics string, vec *prometheus.GaugeVec) error {
 	url := requestBuilder(category, interval, metrics)
 	xs, err := GetVal(url)
 	if err != nil {
@@ -126,7 +126,18 @@ func doGetSet(category, interval, metrics string, vec *prometheus.GaugeVec) erro
 	} else if category == Subscription {
 		mainKey = SubscriptionId
 	} else {
-		panic(category)
+
+		for _, x := range xs {
+			for k, v := range x {
+				v, err := strconv.ParseFloat(v, 64)
+				if err != nil {
+					return err
+				}
+				vec.WithLabelValues(category, k).Set(v)
+			}
+		}
+
+		return nil
 	}
 
 	for _, x := range xs {

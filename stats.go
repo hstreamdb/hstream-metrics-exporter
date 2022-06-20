@@ -109,3 +109,19 @@ var streamRecordBytes = Stats{
 func GetStreamRecordBytes() Stats {
 	return streamRecordBytes
 }
+
+var serverHistogramStats = []Stats{
+	appendRequestLatencyStats, appendLatencyStats,
+}
+
+var appendRequestLatencyStats = Stats{
+	methods: []string{"append_request_latency"},
+}
+
+var appendLatencyStats = Stats{
+	methods: []string{"append_latency"},
+}
+
+func GetServerHistogramStats() []Stats {
+	return serverHistogramStats
+}

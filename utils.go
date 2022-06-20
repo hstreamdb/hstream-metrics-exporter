@@ -17,6 +17,12 @@ func NewRequestBuilder(resourceUrl string) RequestBuilder {
 	}
 }
 
+func NewRequestBuilderWithoutInterval(resourceUrl string) RequestBuilder {
+	return func(category, _, metrics string) string {
+		return fmt.Sprintf("%s/stats?category=%s&metrics=%s", resourceUrl, category, metrics)
+	}
+}
+
 type respTab struct {
 	Headers []string          `json:"headers"`
 	Value   []json.RawMessage `json:"value"`
@@ -31,15 +37,20 @@ func GetRespVal(rawResp []byte) ([]json.RawMessage, error) {
 
 func GetRespRaw(url string) ([]byte, error) {
 	resp, err := http.Get(url)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != 200 {
-		return nil, errors.New(resp.Status)
-	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-	return body, err
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, errors.New(resp.Status + string(body))
+	}
+	return body, nil
 }
 
 func GetVal(url string) ([]map[string]string, error) {

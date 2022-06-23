@@ -10,11 +10,12 @@ const SubscriptionId = "subscription_id"
 const StreamName = "stream_name"
 const Subscription = "subscription"
 const Stream = "stream"
+const StreamCounter = "stream_counter"
 
 // https://github.com/hstreamdb/hstream/blob/main/common/stats/include/per_subscription_time_series.inc
 
 var subscriptionStats = []Stats{
-	subscriptionSendOutBytes, subscriptionSendOutRecords, subscriptionRequestMessages, subscriptionResponseMessages}
+	subscriptionSendOutBytes, subscriptionSendOutRecords, subscriptionRequestMessages, subscriptionResponseMessages, subscriptionAcks}
 
 func GetSubscriptionStats() []Stats {
 	return subscriptionStats
@@ -23,6 +24,10 @@ func GetSubscriptionStats() []Stats {
 var subscriptionSendOutBytes = Stats{
 	methods:   []string{"send_out_bytes", "sends"},
 	intervals: []int{4, 60, 300, 600},
+}
+
+var subscriptionAcks = Stats{
+	methods: []string{"acks", "acknowledgements"},
 }
 
 func GetSubscriptionSendOutBytes() Stats {
@@ -124,4 +129,20 @@ var appendLatencyStats = Stats{
 
 func GetServerHistogramStats() []Stats {
 	return serverHistogramStats
+}
+
+func GetStreamCounterStats() []Stats {
+	return streamCounterStats
+}
+
+var streamCounterStats = []Stats{
+	counterAppendTotal, counterAppendFailed,
+}
+
+var counterAppendTotal = Stats{
+	methods: []string{"append_total"},
+}
+
+var counterAppendFailed = Stats{
+	methods: []string{"append_failed"},
 }

@@ -40,6 +40,7 @@ func main() {
 	doCollectForCategory(requestBuilder, Stream, GetStreamStats(), StreamName, *scrapeInterval)
 	doCollectForCategory(requestBuilder, Subscription, GetSubscriptionStats(), SubscriptionId, *scrapeInterval)
 	doCollectForCategory(requestBuilderWithoutInterval, "server_histogram", GetServerHistogramStats(), "server_histogram", *scrapeInterval)
+	doCollectForCategory(requestBuilderWithoutInterval, StreamCounter, GetStreamCounterStats(), StreamName, *scrapeInterval)
 
 	http.Handle("/metrics", promhttp.HandlerFor(
 		prometheus.DefaultGatherer,
@@ -121,7 +122,7 @@ func doGetSet(requestBuilder RequestBuilder, category, interval, metrics string,
 	}
 
 	var mainKey string
-	if category == Stream {
+	if category == Stream || category == StreamCounter {
 		mainKey = StreamName
 	} else if category == Subscription {
 		mainKey = SubscriptionId

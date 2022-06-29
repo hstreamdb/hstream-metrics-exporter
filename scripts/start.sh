@@ -38,12 +38,32 @@ docker run -td --network host    \
 sleep 5
 
 docker run -td --network host                                       \
-  --name hs-test-hserver                                            \
+  --name hs-test-hserver0                                           \
   -v     $DATA_STORE:/data/store                                    \
     $HSTREAM_IMAGE                                                  \
       hstream-server                                                \
         --store-config /data/store/logdevice.conf --log-level debug \
         --port 6570 --server-id 0
+
+sleep 2
+
+docker run -td --network host                                       \
+  --name hs-test-hserver1                                           \
+  -v     $DATA_STORE:/data/store                                    \
+    $HSTREAM_IMAGE                                                  \
+      hstream-server                                                \
+        --store-config /data/store/logdevice.conf --log-level debug \
+        --port 6571 --server-id 1
+
+sleep 2
+
+docker run -td --network host                                       \
+  --name hs-test-hserver2                                           \
+  -v     $DATA_STORE:/data/store                                    \
+    $HSTREAM_IMAGE                                                  \
+      hstream-server                                                \
+        --store-config /data/store/logdevice.conf --log-level debug \
+        --port 6572 --server-id 2
 
 sleep 10
 

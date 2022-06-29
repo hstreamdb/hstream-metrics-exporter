@@ -1,0 +1,32 @@
+name: check fmt and build
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-go-fmt-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ["1.17", "1.18"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: check go fmt
+        run: |
+          go fmt && ./... \
+          git diff-index --exit-code HEAD
+
+      - name: check go build
+        run: |
+          go build ./...

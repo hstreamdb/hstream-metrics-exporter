@@ -15,16 +15,10 @@ var (
 	FailedRequestsCnt prometheus.Counter
 )
 
-type RequestBuilder = func(category, interval, metrics string) string
+type RequestBuilder = func(category, metrics string) string
 
 func NewRequestBuilder(resourceUrl string) RequestBuilder {
-	return func(category, interval, metrics string) string {
-		return fmt.Sprintf("%s/stats?category=%s&interval=%s&metrics=%s", resourceUrl, category, interval, metrics)
-	}
-}
-
-func NewRequestBuilderWithoutInterval(resourceUrl string) RequestBuilder {
-	return func(category, _, metrics string) string {
+	return func(category, metrics string) string {
 		return fmt.Sprintf("%s/stats?category=%s&metrics=%s", resourceUrl, category, metrics)
 	}
 }

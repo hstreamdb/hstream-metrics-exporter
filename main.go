@@ -37,12 +37,11 @@ func main() {
 	httpServerHostPort := *httpServerHost + ":" + *httpServerPort
 	resourceUrl := httpServerHostPort + resourceSuffix
 	requestBuilder := NewRequestBuilder(resourceUrl)
-	requestBuilderWithoutInterval := NewRequestBuilderWithoutInterval(resourceUrl)
 
 	doCollectForCategory(requestBuilder, Stream, GetStreamStats(), StreamName, *scrapeInterval)
 	doCollectForCategory(requestBuilder, Subscription, GetSubscriptionStats(), SubscriptionId, *scrapeInterval)
-	doCollectForCategory(requestBuilderWithoutInterval, "server_histogram", GetServerHistogramStats(), "server_histogram", *scrapeInterval)
-	doCollectForCategory(requestBuilderWithoutInterval, StreamCounter, GetStreamCounterStats(), StreamName, *scrapeInterval)
+	doCollectForCategory(requestBuilder, ServerHistogram, GetServerHistogramStats(), ServerHistogram, *scrapeInterval)
+	doCollectForCategory(requestBuilder, StreamCounter, GetStreamCounterStats(), StreamName, *scrapeInterval)
 
 	http.Handle("/metrics", promhttp.HandlerFor(
 		prometheus.DefaultGatherer,
@@ -86,22 +85,19 @@ func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, categ
 	for {
 		select {
 		case <-ticker.C:
-			intervals := []string{DefaultIntervalStr}
 
-			for _, interval := range intervals {
-				err := doGetSet(requestBuilder, category, interval, method, vec)
-				if err != nil {
-					log.Printf("error: %v\n", err)
-					log.Println(category, interval, method)
-					log.Println()
-				}
+			err := doGetSet(requestBuilder, category, method, vec)
+			if err != nil {
+				log.Printf("error: %v\n", err)
+				log.Println(category, method)
+				log.Println()
 			}
 		}
 	}
 }
 
-func doGetSet(requestBuilder RequestBuilder, category, interval, metrics string, vec *prometheus.GaugeVec) error {
-	url := requestBuilder(category, interval, metrics)
+func doGetSet(requestBuilder RequestBuilder, category, metrics string, vec *prometheus.GaugeVec) error {
+	url := requestBuilder(category, metrics)
 	xs, err := GetVal(url)
 	if err != nil {
 		return err

@@ -1,16 +1,15 @@
 package main
 
 type Stats struct {
-	methods   []string
-	intervals []int
+	methods []string
 }
 
-const DefaultIntervalStr = "10s"
 const SubscriptionId = "subscription_id"
 const StreamName = "stream_name"
 const Subscription = "subscription"
 const Stream = "stream"
 const StreamCounter = "stream_counter"
+const ServerHistogram = "server_histogram"
 
 // https://github.com/hstreamdb/hstream/blob/main/common/stats/include/per_subscription_time_series.inc
 
@@ -22,8 +21,7 @@ func GetSubscriptionStats() []Stats {
 }
 
 var subscriptionSendOutBytes = Stats{
-	methods:   []string{"send_out_bytes", "sends"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"send_out_bytes", "sends"},
 }
 
 var subscriptionAcks = Stats{
@@ -35,8 +33,7 @@ func GetSubscriptionSendOutBytes() Stats {
 }
 
 var subscriptionSendOutRecords = Stats{
-	methods:   []string{"send_out_records"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"send_out_records"},
 }
 
 func GetSubscriptionSendOutRecords() Stats {
@@ -44,8 +41,7 @@ func GetSubscriptionSendOutRecords() Stats {
 }
 
 var subscriptionRequestMessages = Stats{
-	methods:   []string{"request_messages"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"request_messages"},
 }
 
 func GetSubscriptionRequestMessages() Stats {
@@ -53,8 +49,7 @@ func GetSubscriptionRequestMessages() Stats {
 }
 
 var subscriptionResponseMessages = Stats{
-	methods:   []string{"response_messages"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"response_messages"},
 }
 
 func GetSubscriptionResponseMessages() Stats {
@@ -71,8 +66,7 @@ func GetStreamStats() []Stats {
 }
 
 var streamAppendInBytes = Stats{
-	methods:   []string{"append_in_bytes", "appends"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"append_in_bytes", "appends"},
 }
 
 func GetStreamAppendInBytes() Stats {
@@ -81,8 +75,7 @@ func GetStreamAppendInBytes() Stats {
 
 // append_in_records can only have 0s as interval
 var streamAppendInRecords = Stats{
-	methods:   []string{"append_in_record"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"append_in_record"},
 }
 
 func GetStreamAppendInRecords() Stats {
@@ -90,8 +83,7 @@ func GetStreamAppendInRecords() Stats {
 }
 
 var streamAppendInRequests = Stats{
-	methods:   []string{"append_in_requests"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"append_in_requests"},
 }
 
 func GetStreamAppendInRequests() Stats {
@@ -99,8 +91,7 @@ func GetStreamAppendInRequests() Stats {
 }
 
 var streamAppendFailedRequests = Stats{
-	methods:   []string{"append_failed_requests"},
-	intervals: []int{4, 60, 300, 600},
+	methods: []string{"append_failed_requests"},
 }
 
 func GetStreamAppendFailedRequests() Stats {
@@ -108,8 +99,7 @@ func GetStreamAppendFailedRequests() Stats {
 }
 
 var streamRecordBytes = Stats{
-	methods:   []string{"record_bytes", "reads"},
-	intervals: []int{900, 1800, 3600},
+	methods: []string{"record_bytes", "reads"},
 }
 
 func GetStreamRecordBytes() Stats {

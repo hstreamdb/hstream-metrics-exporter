@@ -79,8 +79,9 @@ func GetStreamAppendInBytes() Stats {
 	return streamAppendInBytes
 }
 
+// append_in_records can only have 0s as interval
 var streamAppendInRecords = Stats{
-	methods:   []string{"append_in_records"},
+	methods:   []string{"append_in_record"},
 	intervals: []int{4, 60, 300, 600},
 }
 

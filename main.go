@@ -76,19 +76,6 @@ func newGaugeVec(category string, stats Stats, mainKey string) *prometheus.Gauge
 	return retVec
 }
 
-func checkZeroIntervalStats(stats Stats) bool {
-	for _, x := range []Stats{GetStreamAppendInRecords()} {
-		for _, xMethod := range x.methods {
-			for _, statsMethod := range stats.methods {
-				if xMethod == statsMethod {
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
 func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, category string, stats Stats, scrapeInterval int) {
 	ticker := NewTickerSec(scrapeInterval)
 	method := stats.methods[0]
@@ -98,9 +85,6 @@ func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, categ
 		select {
 		case <-ticker.C:
 			intervals := []string{DefaultIntervalStr}
-			if checkZeroIntervalStats(stats) {
-				intervals = []string{"0s"}
-			}
 
 			for _, interval := range intervals {
 				err := doGetSet(requestBuilder, category, interval, method, vec)

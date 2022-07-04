@@ -14,6 +14,8 @@ import (
 const resourceSuffix = "/v1/cluster"
 
 func main() {
+	initExporterMetrics()
+
 	const LOCALHOST = "localhost"
 	const HttpPrefix = "http://"
 	var (
@@ -138,4 +140,20 @@ func doGetSet(requestBuilder RequestBuilder, category, interval, metrics string,
 		}
 	}
 	return nil
+}
+
+func initExporterMetrics() {
+	TotalRequestsCnt = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "hstream_metrics_exporter_total_requests",
+		},
+	)
+	prometheus.MustRegister(TotalRequestsCnt)
+
+	FailedRequestsCnt = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "hstream_metrics_exporter_failed_requests",
+		},
+	)
+	prometheus.MustRegister(FailedRequestsCnt)
 }

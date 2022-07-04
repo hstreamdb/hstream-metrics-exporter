@@ -4,9 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
 	"io/ioutil"
 	"net/http"
 	"time"
+)
+
+var (
+	TotalRequestsCnt  prometheus.Counter
+	FailedRequestsCnt prometheus.Counter
 )
 
 type RequestBuilder = func(category, interval, metrics string) string
@@ -37,8 +43,10 @@ func GetRespVal(rawResp []byte) ([]json.RawMessage, error) {
 
 func GetRespRaw(url string) ([]byte, error) {
 	resp, err := http.Get(url)
+	TotalRequestsCnt.Inc()
 	defer resp.Body.Close()
 	if err != nil {
+		FailedRequestsCnt.Inc()
 		return nil, err
 	}
 

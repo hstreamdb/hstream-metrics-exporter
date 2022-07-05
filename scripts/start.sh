@@ -89,7 +89,7 @@ docker run -td --network host                                       \
     prom/prometheus
 
 
-node-exporter &
+nohup node-exporter > /dev/null 2>&1 &
 
 
 docker run -td --network host                                \

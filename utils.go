@@ -50,7 +50,7 @@ func GetRespRaw(url string) ([]byte, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, errors.New(resp.Status + string(body))
+		return nil, errors.New(url + "\n" + resp.Status + "\n" + string(body))
 	}
 	return body, nil
 }

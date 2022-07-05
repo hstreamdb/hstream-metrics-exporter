@@ -57,27 +57,17 @@ func main() {
 
 func doCollectForCategory(rb RequestBuilder, category string, categoryStats []Stats, mainKey string, scrapeInterval int) {
 	for _, stats := range categoryStats {
+		metrics := stats.methods[0]
+		url := rb(category, metrics)
 		vecRef := newGaugeVec(category, stats, mainKey)
 		stats := stats
 		go func() {
-			doCollectFor(rb, vecRef, category, stats, scrapeInterval)
+			doCollectFor(vecRef, url, category, stats, scrapeInterval)
 		}()
 	}
 }
 
-func newGaugeVec(category string, stats Stats, mainKey string) *prometheus.GaugeVec {
-	name := category + "_" + stats.methods[0]
-	retVec := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: name,
-		},
-		[]string{mainKey, "type"},
-	)
-	prometheus.MustRegister(retVec)
-	return retVec
-}
-
-func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, category string, stats Stats, scrapeInterval int) {
+func doCollectFor(vec *prometheus.GaugeVec, url, category string, stats Stats, scrapeInterval int) {
 	ticker := NewTickerSec(scrapeInterval)
 	method := stats.methods[0]
 	defer ticker.Stop()
@@ -86,7 +76,7 @@ func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, categ
 		select {
 		case <-ticker.C:
 
-			err := doGetSet(requestBuilder, category, method, vec)
+			err := doGetSet(url, category, vec)
 			if err != nil {
 				log.Printf("error: %v\n", err)
 				log.Println(category, method)
@@ -96,8 +86,8 @@ func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, categ
 	}
 }
 
-func doGetSet(requestBuilder RequestBuilder, category, metrics string, vec *prometheus.GaugeVec) error {
-	url := requestBuilder(category, metrics)
+func doGetSet(url, category string, vec *prometheus.GaugeVec) error {
+
 	xs, err := GetVal(url)
 	if err != nil {
 		return err
@@ -136,6 +126,18 @@ func doGetSet(requestBuilder RequestBuilder, category, metrics string, vec *prom
 		}
 	}
 	return nil
+}
+
+func newGaugeVec(category string, stats Stats, mainKey string) *prometheus.GaugeVec {
+	name := category + "_" + stats.methods[0]
+	retVec := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: name,
+		},
+		[]string{mainKey, "type"},
+	)
+	prometheus.MustRegister(retVec)
+	return retVec
 }
 
 func initExporterMetrics() {

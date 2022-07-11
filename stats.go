@@ -59,18 +59,10 @@ func GetSubscriptionResponseMessages() Stats {
 // https://github.com/hstreamdb/hstream/blob/main/common/stats/include/per_stream_time_series.inc
 
 var streamStats = []Stats{
-	streamAppendInBytes, streamAppendInRecords, streamAppendInRequests, streamAppendFailedRequests, streamRecordBytes}
+	streamAppendInRecords, streamAppendInRequests, streamAppendFailedRequests, streamRecordBytes}
 
 func GetStreamStats() []Stats {
 	return streamStats
-}
-
-var streamAppendInBytes = Stats{
-	methods: []string{"append_in_bytes", "appends"},
-}
-
-func GetStreamAppendInBytes() Stats {
-	return streamAppendInBytes
 }
 
 // append_in_records can only have 0s as interval
@@ -137,3 +129,42 @@ var counterAppendTotal = Stats{
 var counterAppendFailed = Stats{
 	methods: []string{"append_failed"},
 }
+
+// Should sync with: https://github.com/hstreamdb/http-services/blob/main/api/v1/stats/router.go
+
+type StatsTarget struct {
+	category string
+	mainKey  string
+	uri      string
+}
+
+var appendBytes = StatsTarget{
+	category: Stream,
+	mainKey:  StreamName,
+	uri:      "/append/bytes",
+}
+
+func GetStatsTargets() []StatsTarget {
+	return []StatsTarget{
+		appendBytes,
+	}
+}
+
+//var aggTargetsLabeled = []string{
+//	"/append/bytes", "/send/bytes",
+//	"/append/records", "/send/records",
+//	"/append/success", "/append/failed",
+//}
+//
+//var aggTargetsUnlabeled = []string{
+//	"/histogram/server_append_request_latency",
+//	"/histogram/server_append_latency",
+//}
+//
+//func GetAggTargetsLabeled() []string {
+//	return aggTargetsLabeled
+//}
+//
+//func GetAggTargetsUnlabeled() []string {
+//	return aggTargetsUnlabeled
+//}

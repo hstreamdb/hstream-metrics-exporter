@@ -11,22 +11,27 @@ import (
 	"strings"
 )
 
-const resourceSuffix = "/v1/cluster"
+const versionSuffix = "/v1"
+const clusterSuffix = "/cluster"
+const statsSuffix = "/stats"
+
+var (
+	resourceUrl string
+)
 
 func main() {
 	initExporterMetrics()
 
 	const LOCALHOST = "localhost"
 	const HttpPrefix = "http://"
-	var (
-		serverHost = flag.String("host", LOCALHOST, "")
-		serverPort = flag.String("port", "9270", "")
 
-		httpServerHost = flag.String("http-server-host", LOCALHOST, "")
-		httpServerPort = flag.String("http-server-port", "9290", "")
+	serverHost := flag.String("host", LOCALHOST, "")
+	serverPort := flag.String("port", "9270", "")
 
-		scrapeInterval = flag.Int("scrape-interval", 1, "")
-	)
+	httpServerHost := flag.String("http-server-host", LOCALHOST, "")
+	httpServerPort := flag.String("http-server-port", "9290", "")
+
+	scrapeInterval := flag.Int("scrape-interval", 1, "")
 
 	flag.Parse()
 	if !strings.HasPrefix(*httpServerHost, HttpPrefix) {
@@ -35,13 +40,14 @@ func main() {
 
 	serverHostPort := *serverHost + ":" + *serverPort
 	httpServerHostPort := *httpServerHost + ":" + *httpServerPort
-	resourceUrl := httpServerHostPort + resourceSuffix
-	requestBuilder := NewRequestBuilder(resourceUrl)
+	resourceUrl = httpServerHostPort + versionSuffix
+	requestBuilder := NewRequestBuilder(resourceUrl + clusterSuffix)
 
 	doCollectForCategory(requestBuilder, Stream, GetStreamStats(), StreamName, *scrapeInterval)
 	doCollectForCategory(requestBuilder, Subscription, GetSubscriptionStats(), SubscriptionId, *scrapeInterval)
 	doCollectForCategory(requestBuilder, ServerHistogram, GetServerHistogramStats(), ServerHistogram, *scrapeInterval)
 	doCollectForCategory(requestBuilder, StreamCounter, GetStreamCounterStats(), StreamName, *scrapeInterval)
+	doCollectForTargets(GetStatsTargets(), *scrapeInterval)
 
 	http.Handle("/metrics", promhttp.HandlerFor(
 		prometheus.DefaultGatherer,
@@ -57,36 +63,39 @@ func main() {
 
 func doCollectForCategory(rb RequestBuilder, category string, categoryStats []Stats, mainKey string, scrapeInterval int) {
 	for _, stats := range categoryStats {
-		vecRef := newGaugeVec(category, stats, mainKey)
-		stats := stats
+		metrics := stats.methods[0]
+		url := rb(category, metrics)
+		vecRef := newGaugeVec(category+"_"+metrics, mainKey)
 		go func() {
-			doCollectFor(rb, vecRef, category, stats, scrapeInterval)
+			doCollectFor(vecRef, url, category, metrics, scrapeInterval)
 		}()
 	}
 }
 
-func newGaugeVec(category string, stats Stats, mainKey string) *prometheus.GaugeVec {
-	name := category + "_" + stats.methods[0]
-	retVec := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: name,
-		},
-		[]string{mainKey, "type"},
-	)
-	prometheus.MustRegister(retVec)
-	return retVec
+func doCollectForTargets(targets []StatsTarget, scrapeInterval int) {
+	for _, target := range targets {
+		name := strings.Replace(target.uri, "/", "_", -1)
+		name = name[1:]
+
+		url := resourceUrl + statsSuffix + target.uri
+
+		vecRef := newGaugeVec(name, target.mainKey)
+		target := target
+		go func() {
+			doCollectFor(vecRef, url, target.category, name, scrapeInterval)
+		}()
+	}
 }
 
-func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, category string, stats Stats, scrapeInterval int) {
+func doCollectFor(vec *prometheus.GaugeVec, url, category string, method string, scrapeInterval int) {
 	ticker := NewTickerSec(scrapeInterval)
-	method := stats.methods[0]
 	defer ticker.Stop()
 	defer fmt.Printf("stop do collect for: %v %v\n", category, method)
 	for {
 		select {
 		case <-ticker.C:
 
-			err := doGetSet(requestBuilder, category, method, vec)
+			err := doGetSet(url, category, vec)
 			if err != nil {
 				log.Printf("error: %v\n", err)
 				log.Println(category, method)
@@ -96,8 +105,8 @@ func doCollectFor(requestBuilder RequestBuilder, vec *prometheus.GaugeVec, categ
 	}
 }
 
-func doGetSet(requestBuilder RequestBuilder, category, metrics string, vec *prometheus.GaugeVec) error {
-	url := requestBuilder(category, metrics)
+func doGetSet(url, category string, vec *prometheus.GaugeVec) error {
+
 	xs, err := GetVal(url)
 	if err != nil {
 		return err
@@ -136,6 +145,17 @@ func doGetSet(requestBuilder RequestBuilder, category, metrics string, vec *prom
 		}
 	}
 	return nil
+}
+
+func newGaugeVec(name, mainKey string) *prometheus.GaugeVec {
+	retVec := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: name,
+		},
+		[]string{mainKey, "type"},
+	)
+	prometheus.MustRegister(retVec)
+	return retVec
 }
 
 func initExporterMetrics() {

@@ -98,6 +98,7 @@ docker run -td --network host                                \
   -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin                        \
   -e GF_AUTH_ANONYMOUS_ENABLED=true                          \
   -e GF_AUTH_DISABLE_LOGIN_FORM=true                         \
+  -e GF_DEFAULT_APP_MODE=development                         \
   -v "$(pwd)"/configs/provisioning:/etc/grafana/provisioning \
     grafana/grafana-oss:main
 

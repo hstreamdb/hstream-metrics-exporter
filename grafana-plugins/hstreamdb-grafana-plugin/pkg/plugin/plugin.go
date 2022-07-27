@@ -84,23 +84,16 @@ func (d *SampleDatasource) query(ctx context.Context, _ backend.PluginContext, q
 		response.Error = fmt.Errorf("error when unmarshalling %s: %s", string(query.JSON), response.Error)
 		return response
 	}
-
 	cmd := string(objMap["queryText"])
 	if cmd == "\"\"" || cmd == "" {
 		return response
 	}
+
 	// trim quotes
 	cmd = cmd[1:]
 	cmd = cmd[:len(cmd)-1]
 
-	serverUrl := string(objMap["serverUrl"])
-	if cmd == "\"\"" || cmd == "" {
-		serverUrl = "127.0.0.1:6570"
-	}
-	serverUrl = serverUrl[1:]
-	serverUrl = serverUrl[:len(cmd)-1]
-	serverUrl = fmt.Sprintf("%q", serverUrl)
-
+	serverUrl := "127.0.0.1:6570"
 	conn, err := grpc.DialContext(ctx, serverUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		response.Error = errors.New(fmt.Sprintf("Error when connect to %s: %s", serverUrl, err))

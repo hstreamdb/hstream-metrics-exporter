@@ -16,7 +16,7 @@ export class QueryEditor extends PureComponent<Props> {
     onChange({ ...query, queryText: event.target.value });
   };
 
-  onConstantChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onServerUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, serverUrl: event.target.value });
     // executes the query
@@ -38,10 +38,9 @@ export class QueryEditor extends PureComponent<Props> {
       <div className="gf-form">
         <FormField
           width={4}
-          value={serverUrl}
-          onChange={this.onConstantChange}
+          value={serverUrl || ''}
+          onChange={this.onServerUrlChange}
           label="Server URL"
-          type="string"
           step="0.1"
         />
         <FormField
@@ -49,7 +48,6 @@ export class QueryEditor extends PureComponent<Props> {
           value={queryText || ''}
           onChange={this.onQueryTextChange}
           label="Query Text"
-          tooltip="Not used yet"
         />
         <Switch checked={withStreaming || false} label="Enable streaming (v8+)" onChange={this.onWithStreamingChange} />
       </div>

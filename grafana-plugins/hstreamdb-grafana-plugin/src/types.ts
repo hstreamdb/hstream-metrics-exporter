@@ -2,12 +2,12 @@ import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
 export interface MyQuery extends DataQuery {
   queryText?: string;
-  serverUrl?: string;
+  serverUrl: string;
   withStreaming: boolean;
 }
 
 export const defaultQuery: Partial<MyQuery> = {
-  serverUrl: "",
+  serverUrl: "127.0.0.1:6570",
   withStreaming: false,
 };
 

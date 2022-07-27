@@ -1,0 +1,38 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "hstreamdb-grafana-plugin",
+  "id": "hstreamdb-hstreamdb-grafana-plugin",
+  "metrics": true,
+  "backend": true,
+  "executable": "gpx_hstreamdb-grafana-plugin",
+  "info": {
+    "description": "",
+    "author": {
+      "name": "alissa-tung",
+      "url": "https://hstream.io/"
+    },
+    "keywords": [],
+    "logos": {
+      "small": "img/logo.png",
+      "large": "img/logo.png"
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/grafana/grafana-starter-datasource-backend"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/grafana/grafana-starter-datasource-backend/blob/master/LICENSE"
+      }
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=7.0.0",
+    "plugins": []
+  }
+}

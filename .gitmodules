@@ -1,0 +1,3 @@
+[submodule "grafana-plugins/hstreamdb-grafana-plugin/protocol"]
+	path = grafana-plugins/hstreamdb-grafana-plugin/protocol
+	url = https://github.com/hstreamdb/protocol.git

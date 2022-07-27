@@ -44,7 +44,7 @@ func TestMainFunc(t *testing.T) {
 	}(conn)
 
 	c := server.NewHStreamApiClient(conn)
-	req := server.CommandQuery{StmtText: "select * from v where x = 0;"}
+	req := server.CommandQuery{StmtText: "select * from vv where x = 0;"}
 
 	resp, err := c.ExecuteQuery(context.Background(), &req)
 	if err != nil {

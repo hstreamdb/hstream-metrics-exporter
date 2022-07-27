@@ -114,7 +114,13 @@ func (d *SampleDatasource) query(ctx context.Context, _ backend.PluginContext, q
 
 	framesMap := FlattenResponse(
 		grpcQueryResult.GetResultSet())
-	lenResults := len(framesMap)
+
+	lenResults := 0
+	for _, v := range framesMap {
+		lenResults = len(v)
+		break
+	}
+
 	timeIs := make([]time.Time, lenResults)
 	values := make([]string, lenResults)
 

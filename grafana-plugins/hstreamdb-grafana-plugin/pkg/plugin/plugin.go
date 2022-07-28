@@ -84,7 +84,14 @@ func (d *SampleDatasource) query(ctx context.Context, _ backend.PluginContext, q
 		response.Error = fmt.Errorf("error when unmarshalling %s: %s", string(query.JSON), response.Error)
 		return response
 	}
+
+	serverUrl := string(objMap["serverUrl"])
 	cmd := string(objMap["queryText"])
+
+	// trim quotes
+	serverUrl = serverUrl[1:]
+	serverUrl = serverUrl[:len(serverUrl)-1]
+
 	if cmd == "\"\"" || cmd == "" {
 		return response
 	}
@@ -93,7 +100,6 @@ func (d *SampleDatasource) query(ctx context.Context, _ backend.PluginContext, q
 	cmd = cmd[1:]
 	cmd = cmd[:len(cmd)-1]
 
-	serverUrl := "127.0.0.1:6570"
 	conn, err := grpc.DialContext(ctx, serverUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		response.Error = errors.New(fmt.Sprintf("Error when connect to %s: %s", serverUrl, err))
@@ -115,7 +121,7 @@ func (d *SampleDatasource) query(ctx context.Context, _ backend.PluginContext, q
 	framesMap := FlattenResponse(
 		grpcQueryResult.GetResultSet())
 
-	lenResults := 0
+	lenResults := 1
 	for _, v := range framesMap {
 		lenResults = len(v)
 		break

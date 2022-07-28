@@ -92,14 +92,18 @@ docker run -td --network host                                       \
 nohup node-exporter > /dev/null 2>&1 &
 
 
-docker run -td --network host                                \
-  --rm                                                       \
-  --name hs-test-grafana                                     \
-  -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin                        \
-  -e GF_AUTH_ANONYMOUS_ENABLED=true                          \
-  -e GF_AUTH_DISABLE_LOGIN_FORM=true                         \
-  -e GF_DEFAULT_APP_MODE=development                         \
-  -v "$(pwd)"/configs/provisioning:/etc/grafana/provisioning \
+cd ./grafana-plugins/hstreamdb-grafana-plugin/ || exit && make && cd ../..
+
+docker run -td --network host                                         \
+  --rm                                                                \
+  --name hs-test-grafana                                              \
+  -e GF_AUTH_ANONYMOUS_ORG_ROLE=Admin                                 \
+  -e GF_AUTH_ANONYMOUS_ENABLED=true                                   \
+  -e GF_AUTH_DISABLE_LOGIN_FORM=true                                  \
+  -e GF_DEFAULT_APP_MODE=development                                  \
+  -v "$PWD"/configs/provisioning:/etc/grafana/provisioning            \
+  -v "$PWD"/configs/defaults.ini:/usr/share/grafana/conf/defaults.ini \
+  -v "$PWD"/grafana-plugins:/var/lib/grafana/plugins                  \
     grafana/grafana-oss:main
 
 sleep 10

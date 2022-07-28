@@ -738,6 +738,85 @@
       ],
       "title": "Memory used percent",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "hstreamdb-hstreamdb-grafana-plugin",
+        "uid": "gpbk-Mz4z"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 33
+      },
+      "id": 18,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.0.0-63997pre",
+      "targets": [
+        {
+          "datasource": {
+            "type": "hstreamdb-hstreamdb-grafana-plugin",
+            "uid": "gpbk-Mz4z"
+          },
+          "queryText": "SELECT * FROM v WHERE i = 0;",
+          "refId": "A",
+          "serverUrl": "127.0.0.1:6570",
+          "withStreaming": false
+        }
+      ],
+      "title": "SELECT * FROM v WHERE i = 0",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "ABS(y)",
+                "REVERSE(z)",
+                "SUM(x)"
+              ]
+            }
+          }
+        }
+      ],
+      "type": "table"
     }
   ],
   "refresh": "5s",
@@ -751,10 +830,24 @@
     "from": "now-5m",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "refresh_intervals": [
+      "1s",
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
   "timezone": "",
   "title": "HStream Dashboard",
   "uid": "G9MED397k",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }

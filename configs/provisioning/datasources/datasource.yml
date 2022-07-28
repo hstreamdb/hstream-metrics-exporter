@@ -17,3 +17,20 @@ datasources:
     jsonData:
     httpMethod: POST
     readOnly: false
+
+  - id: 2
+    uid: gpbk-Mz4z
+    orgId: 1
+    name: hstreamdb-grafana-plugin
+    type: hstreamdb-hstreamdb-grafana-plugin
+    typeName: hstreamdb-grafana-plugin
+    typeLogoUrl: public/plugins/hstreamdb-hstreamdb-grafana-plugin/img/logo.png
+    access: proxy
+    url: ""
+    password: ""
+    user: ""
+    database: ""
+    basicAuth: false
+    isDefault: false
+    jsonData: {}
+    readOnly: false

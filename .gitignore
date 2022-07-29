@@ -2,3 +2,5 @@
 hstream-metrics-exporter
 nohup.out
 /.vscode
+
+dist/

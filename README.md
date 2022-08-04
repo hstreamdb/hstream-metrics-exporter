@@ -56,3 +56,24 @@ The configuration
 ```
 
 is the same with default configuration in the image, excepted the minimum refresh interval are set lower than 5s.
+
+## Use HStream data source plugin
+
+### Build
+
+```shell
+go install github.com/magefile/mage@latest # if mage is not installed
+cd ./grafana-plugins/hstreamdb-grafana-plugin && yarn install && make # in the Makefile, `GOBIN` is set to `~/go/bin` by default
+```
+
+### Add a panel
+
+Configurations can be done by either using the provisioning utils above or setting manually.
+
+Manually settings:
+
+1. Add the data source provide by HStream plugin: first click the bottom left settings button, then choose the data
+   sources option (which requires log in as admin and `GF_DEFAULT_APP_MODE=development`)
+2. In any dashboard, add a panel, choose the `Table` format at top right.
+3. Test query, if data is got correctly, near the query builder click `Transform` and search `Filter by name`,
+   ignore `time` and `values` fields.

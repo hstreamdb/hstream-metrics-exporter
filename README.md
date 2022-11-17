@@ -1,5 +1,7 @@
 # HStream Metrics Exporter
 
+Archived. See [HStream exporter](https://github.com/hstreamdb/hstream-exporter).
+
 ## Start Grafana
 
 The command
